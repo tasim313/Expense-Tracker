@@ -1,0 +1,24 @@
+// Simple Firebase Firestore Indexes Configuration
+// Copy these rules to your Firebase Console -> Firestore -> Indexes
+
+// Single field indexes (automatically created by Firebase)
+// These are created automatically when you use where() clauses:
+
+// Collection: expenses
+// Field: userId (Ascending)
+
+// Collection: goals  
+// Field: userId (Ascending)
+
+// Collection: vouchers
+// Field: userId (Ascending)
+
+// No composite indexes needed since we removed orderBy from queries
+// Data will be sorted in memory after retrieval for better performance
+// and to avoid complex index requirements.
+
+// Note: If you need better performance for large datasets in the future,
+// you can add composite indexes:
+// - expenses: userId (Ascending), date (Descending)  
+// - goals: userId (Ascending), createdAt (Descending)
+// - vouchers: userId (Ascending), createdAt (Descending)

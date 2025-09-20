@@ -1,0 +1,51 @@
+FIREBASE SECURITY RULES & INDEXES DEPLOYMENT GUIDE
+==================================================
+
+STEP 1: Deploy Firestore Security Rules
+---------------------------------------
+1. Go to Firebase Console (https://console.firebase.google.com)
+2. Select your project: "expance-tracker-2af20"
+3. Navigate to "Firestore Database" in the left sidebar
+4. Click on the "Rules" tab
+5. Replace the existing rules with the content from "firebase-security-rules.txt"
+6. Click "Publish" to deploy the rules
+
+STEP 2: Create Firestore Indexes
+--------------------------------
+1. In the same Firestore Database section
+2. Click on the "Indexes" tab
+3. Click "Create Index" for each index listed in "firebase-indexes.txt"
+4. For each index:
+   - Enter the Collection ID (e.g., "expenses")
+   - Add fields with their sort order (Ascending/Descending)
+   - Click "Create"
+
+STEP 3: Deploy Storage Security Rules
+-------------------------------------
+1. Navigate to "Storage" in the left sidebar
+2. Click on the "Rules" tab
+3. Replace the existing rules with the Storage rules from "firebase-security-rules.txt"
+4. Click "Publish" to deploy the rules
+
+STEP 4: Verify Deployment
+------------------------
+1. Test the app functionality to ensure rules work correctly
+2. Check the Firebase Console for any rule violations in the "Usage" tab
+3. Monitor the "Indexes" tab to ensure all indexes are built successfully
+
+SECURITY FEATURES IMPLEMENTED:
+------------------------------
+✅ User authentication required for all operations
+✅ Users can only access their own data
+✅ Data validation for all document types
+✅ File upload restrictions (size and type limits)
+✅ Proper field validation for expenses, goals, and vouchers
+✅ Protection against unauthorized data modification
+✅ Optimized query performance with composite indexes
+
+IMPORTANT NOTES:
+---------------
+- Index creation may take several minutes to complete
+- Test all app functionality after deploying rules
+- Monitor Firebase usage to ensure rules are working as expected
+- Keep backup of previous rules before deployment

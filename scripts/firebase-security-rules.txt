@@ -1,0 +1,145 @@
+// Copy these rules to your Firebase Console -> Firestore Database -> Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for validation
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isValidExpense() {
+      return request.resource.data.keys().hasAll(['userId', 'amount', 'category', 'description', 'date', 'type', 'createdAt']) &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.amount is number &&
+             request.resource.data.amount > 0 &&
+             request.resource.data.category is string &&
+             request.resource.data.description is string &&
+             request.resource.data.type in ['expense', 'income'] &&
+             request.resource.data.date is timestamp &&
+             request.resource.data.createdAt is timestamp;
+    }
+    
+    function isValidGoal() {
+      return request.resource.data.keys().hasAll(['userId', 'title', 'description', 'targetAmount', 'currentAmount', 'targetDate', 'category', 'priority', 'status', 'createdAt', 'updatedAt']) &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.targetAmount is number &&
+             request.resource.data.targetAmount > 0 &&
+             request.resource.data.currentAmount is number &&
+             request.resource.data.currentAmount >= 0 &&
+             request.resource.data.priority in ['low', 'medium', 'high'] &&
+             request.resource.data.status in ['active', 'completed', 'paused'] &&
+             request.resource.data.targetDate is timestamp &&
+             request.resource.data.createdAt is timestamp &&
+             request.resource.data.updatedAt is timestamp;
+    }
+    
+    function isValidVoucher() {
+      return request.resource.data.keys().hasAll(['userId', 'voucherNumber', 'type', 'title', 'description', 'amount', 'category', 'date', 'status', 'createdAt']) &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.amount is number &&
+             request.resource.data.amount > 0 &&
+             request.resource.data.type in ['expense', 'income', 'loan', 'settlement', 'goal_contribution'] &&
+             request.resource.data.status in ['active', 'void'] &&
+             request.resource.data.date is timestamp &&
+             request.resource.data.createdAt is timestamp;
+    }
+    
+    // Expenses collection rules
+    match /expenses/{expenseId} {
+      allow read, write, create, update, delete: if isAuthenticated() && 
+        isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isValidExpense();
+      allow update: if isAuthenticated() && 
+        isOwner(resource.data.userId) && 
+        isOwner(request.resource.data.userId) &&
+        resource.data.userId == request.resource.data.userId;
+    }
+    
+    // Goals collection rules
+    match /goals/{goalId} {
+      allow read, write, create, update, delete: if isAuthenticated() && 
+        isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isValidGoal();
+      allow update: if isAuthenticated() && 
+        isOwner(resource.data.userId) && 
+        isOwner(request.resource.data.userId) &&
+        resource.data.userId == request.resource.data.userId;
+    }
+    
+    // Vouchers collection rules
+    match /vouchers/{voucherId} {
+      allow read, write, create, update, delete: if isAuthenticated() && 
+        isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isValidVoucher();
+      allow update: if isAuthenticated() && 
+        isOwner(resource.data.userId) && 
+        isOwner(request.resource.data.userId) &&
+        resource.data.userId == request.resource.data.userId;
+    }
+    
+    // User profiles collection (optional for future use)
+    match /users/{userId} {
+      allow read, write, create, update: if isAuthenticated() && 
+        isOwner(userId);
+    }
+    
+    // Public data (if needed for app metadata)
+    match /public/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write to public data
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+// Firebase Storage rules (for file uploads like receipts, profile pictures)
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // User-specific folders
+    match /users/{userId}/{allPaths=**} {
+      allow read, write, delete: if request.auth != null && 
+        request.auth.uid == userId;
+    }
+    
+    // Voucher attachments
+    match /vouchers/{userId}/{voucherId}/{fileName} {
+      allow read, write, delete: if request.auth != null && 
+        request.auth.uid == userId &&
+        fileName.matches('.*\\.(jpg|jpeg|png|pdf)$') &&
+        request.resource.size < 5 * 1024 * 1024; // 5MB limit
+    }
+    
+    // Receipt images
+    match /receipts/{userId}/{expenseId}/{fileName} {
+      allow read, write, delete: if request.auth != null && 
+        request.auth.uid == userId &&
+        fileName.matches('.*\\.(jpg|jpeg|png)$') &&
+        request.resource.size < 2 * 1024 * 1024; // 2MB limit
+    }
+    
+    // Profile pictures
+    match /profiles/{userId}/avatar.{ext} {
+      allow read, write, delete: if request.auth != null && 
+        request.auth.uid == userId &&
+        ext.matches('(jpg|jpeg|png)') &&
+        request.resource.size < 1 * 1024 * 1024; // 1MB limit
+    }
+    
+    // Deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

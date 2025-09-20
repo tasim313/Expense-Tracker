@@ -1,0 +1,60 @@
+// Copy these to your Firebase Console -> Firestore Database -> Indexes
+
+// Expenses collection indexes
+// For querying user expenses by date (descending)
+Collection: expenses
+Fields: userId (Ascending), date (Descending)
+
+// For querying user expenses by category and date
+Collection: expenses
+Fields: userId (Ascending), category (Ascending), date (Descending)
+
+// For querying user expenses by type and date
+Collection: expenses
+Fields: userId (Ascending), type (Ascending), date (Descending)
+
+// For querying user expenses by amount range
+Collection: expenses
+Fields: userId (Ascending), amount (Ascending), date (Descending)
+
+// Goals collection indexes
+// For querying user goals by creation date
+Collection: goals
+Fields: userId (Ascending), createdAt (Descending)
+
+// For querying user goals by status and priority
+Collection: goals
+Fields: userId (Ascending), status (Ascending), priority (Descending)
+
+// For querying user goals by target date
+Collection: goals
+Fields: userId (Ascending), targetDate (Ascending)
+
+// For querying user goals by category and status
+Collection: goals
+Fields: userId (Ascending), category (Ascending), status (Ascending)
+
+// Vouchers collection indexes
+// For querying user vouchers by creation date
+Collection: vouchers
+Fields: userId (Ascending), createdAt (Descending)
+
+// For querying user vouchers by type and date
+Collection: vouchers
+Fields: userId (Ascending), type (Ascending), date (Descending)
+
+// For querying user vouchers by status and date
+Collection: vouchers
+Fields: userId (Ascending), status (Ascending), date (Descending)
+
+// For searching vouchers by voucher number
+Collection: vouchers
+Fields: userId (Ascending), voucherNumber (Ascending)
+
+// For querying vouchers related to expenses
+Collection: vouchers
+Fields: userId (Ascending), relatedExpenseId (Ascending)
+
+// For querying vouchers related to goals
+Collection: vouchers
+Fields: userId (Ascending), relatedGoalId (Ascending)
