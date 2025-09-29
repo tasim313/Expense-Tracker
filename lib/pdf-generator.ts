@@ -1,6 +1,7 @@
 import jsPDF from "jspdf"
 import type { Voucher } from "./firestore"
 
+
 export const generateVoucherPDF = (voucher: Voucher, userInfo: { name?: string; email?: string }) => {
   console.log("[v0] Generating PDF for voucher:", voucher.voucherNumber)
 
@@ -130,10 +131,10 @@ export const generateVoucherPDF = (voucher: Voucher, userInfo: { name?: string; 
   doc.text("This is a computer-generated voucher and does not require a signature.", 20, yPos + 25)
 
   // Watermark
-  doc.setTextColor(240, 240, 240)
-  doc.setFontSize(60)
-  doc.setFont("helvetica", "bold")
-  doc.text("EXPENSE TRACKER", 105, 150, { angle: 45, align: "center" })
+  // doc.setTextColor(240, 240, 240)
+  // doc.setFontSize(60)
+  // doc.setFont("helvetica", "bold")
+  // doc.text("EXPENSE TRACKER", 105, 150, { angle: 45, align: "center" })
 
   console.log("[v0] PDF generation completed")
   return doc
