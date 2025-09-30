@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import { subscribeToUserGoals, deleteGoal, type Goal } from "@/lib/firestore"
 import { GoalForm } from "./goal-form"
-import { GoalCard } from "./goal-card"
+import {GoalCard}  from "./goal-card"
 import { Plus, Target } from "lucide-react"
 
 export function GoalsList() {
