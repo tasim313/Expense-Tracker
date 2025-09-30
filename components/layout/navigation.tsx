@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Home, CreditCard, Target, FileText, BarChart3 } from "lucide-react"
+import { Home, CreditCard, Target, FileText, BarChart3, Layers } from "lucide-react"
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: Home },
@@ -11,6 +11,7 @@ const navItems = [
   { href: "/goals", label: "Goals", icon: Target },
   { href: "/vouchers", label: "Vouchers", icon: FileText },
   { href: "/reports", label: "Reports", icon: BarChart3 },
+  { href: "/category", label: "Categories", icon: Layers },
 ]
 
 export function Navigation() {
