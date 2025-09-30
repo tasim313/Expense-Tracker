@@ -12,6 +12,7 @@ const navItems = [
   { href: "/vouchers", label: "Vouchers", icon: FileText },
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/category", label: "Categories", icon: Layers },
+  { href: "/contact", label: "Contacts", icon: Layers },
 ]
 
 export function Navigation() {
