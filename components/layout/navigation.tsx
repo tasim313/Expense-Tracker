@@ -7,7 +7,7 @@ import { Home, CreditCard, Target, FileText, BarChart3, Layers, Users } from "lu
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: Home },
-  { href: "/expenses", label: "Expenses", icon: CreditCard },
+  { href: "/expenses", label: "Transition", icon: CreditCard },
   { href: "/goals", label: "Goals", icon: Target },
   { href: "/vouchers", label: "Vouchers", icon: FileText },
   { href: "/reports", label: "Reports", icon: BarChart3 },

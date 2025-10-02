@@ -36,8 +36,8 @@ export function ExpenseList() {
     try {
       await deleteExpense(id)
       toast({
-        title: "Expense deleted",
-        description: "The expense has been removed.",
+        title: "Transition deleted",
+        description: "The transition has been removed.",
       })
     } catch (error: any) {
       toast({
@@ -68,7 +68,7 @@ export function ExpenseList() {
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="text-center">Loading expenses...</div>
+          <div className="text-center">Loading transitions...</div>
         </CardContent>
       </Card>
     )
@@ -80,12 +80,12 @@ export function ExpenseList() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Recent Expenses</CardTitle>
+              <CardTitle>Recent Transitions</CardTitle>
               <CardDescription>Track and manage your income and expenses</CardDescription>
             </div>
             <Button onClick={() => setFormOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Expense
+              Add Transition
             </Button>
           </div>
         </CardHeader>
@@ -95,7 +95,7 @@ export function ExpenseList() {
               <p className="text-muted-foreground mb-4">No expenses recorded yet</p>
               <Button onClick={() => setFormOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Your First Expense
+                Add Your First Transition
               </Button>
             </div>
           ) : (
