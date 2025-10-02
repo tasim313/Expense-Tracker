@@ -1,5 +1,5 @@
 import { db, auth } from "@/lib/firebase";
-import { collection, addDoc, getDocs, doc, getDoc, query, where, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, getDoc, query, where, updateDoc, deleteDoc} from "firebase/firestore";
 
 // Contacts collection
 const contactsRef = collection(db, "contacts");

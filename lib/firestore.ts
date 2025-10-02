@@ -11,6 +11,7 @@ import {
   Timestamp,
 } from "firebase/firestore"
 import { db } from "./firebase"
+import { format } from "date-fns"
 
 export interface Expense {
   id?: string
@@ -525,4 +526,25 @@ export const getSpendingTrends = async (userId: string, period: "week" | "month"
     console.error("Error getting spending trends:", error)
     throw error
   }
+}
+
+
+export async function generateTransactionId(userId: string) {
+  const today = format(new Date(), "yyyyMMdd") // e.g., 20251002
+
+  // Count today’s transactions for user
+  const q = query(
+    collection(db, "expenses"),
+    where("userId", "==", userId)
+  )
+  const snap = await getDocs(q)
+
+  const todayCount = snap.docs.filter(doc => {
+    const data = doc.data()
+    const date = data.date?.toDate ? data.date.toDate() : new Date(data.date)
+    return format(date, "yyyyMMdd") === today
+  }).length
+
+  const serial = String(todayCount + 1).padStart(4, "0") // e.g. 0001
+  return `${today}-${userId}-${serial}`
 }
