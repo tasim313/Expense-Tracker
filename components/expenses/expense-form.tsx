@@ -61,14 +61,14 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
       if (expense?.id) {
         await updateExpense(expense.id, expenseData)
         toast({
-          title: "Expense updated successfully!",
-          description: "Your expense has been updated.",
+          title: "Transition updated successfully!",
+          description: "Your transition has been updated.",
         })
       } else {
         await addExpense(expenseData)
         toast({
-          title: "Expense added successfully!",
-          description: "Your expense has been recorded.",
+          title: "Transition added successfully!",
+          description: "Your transition has been recorded.",
         })
       }
 
@@ -98,9 +98,9 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{expense ? "Edit Expense" : "Add New Expense"}</DialogTitle>
+          <DialogTitle>{expense ? "Edit Transition" : "Add New Transition"}</DialogTitle>
           <DialogDescription>
-            {expense ? "Update your expense details." : "Add a new expense or income entry."}
+            {expense ? "Update your transition details." : "Add a new transition or income entry."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
