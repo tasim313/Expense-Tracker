@@ -14,10 +14,10 @@ export default function CategoryPage() {
           <main className="container mx-auto px-4 py-8">
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-foreground mb-2">
-                Category Management
+                Contact Management
               </h2>
               <p className="text-muted-foreground">
-                Organize categories and subcategories hierarchically
+                Organize Contact Using categories and subcategories hierarchically
               </p>
             </div>
             <CreateContact />   {/* ✅ Use correct component */}
