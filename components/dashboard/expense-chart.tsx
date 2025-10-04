@@ -1,4 +1,5 @@
 "use client"
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,6 +14,11 @@ import {
 } from "chart.js"
 import { Line, Doughnut, Bar } from "react-chartjs-2"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useState } from "react"
+import { db } from "@/lib/firebase"
+import { collection, getDocs, query, where } from "firebase/firestore"
+import { useAuth } from "@/hooks/use-auth"
+import { Timestamp } from "firebase/firestore"
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement)
 
@@ -22,41 +28,99 @@ interface ExpenseChartProps {
   description?: string
 }
 
+interface CategoryData { id: string; name: string; color: string }
+interface TransactionData { id: string; categoryId: string; amount: number; type: string; date: string }
+
 export function ExpenseChart({ type, title, description }: ExpenseChartProps) {
-  // Sample data - will be replaced with real Firebase data
+  const { user } = useAuth()
+  const [dataLoaded, setDataLoaded] = useState(false)
+  const [categories, setCategories] = useState<CategoryData[]>([])
+  const [transactions, setTransactions] = useState<TransactionData[]>([])
+
+  useEffect(() => {
+    if (!user) return
+
+    const fetchData = async () => {
+      // 1. Fetch categories
+      const catSnap = await getDocs(
+        query(collection(db, "categories"), where("userId", "==", user.uid))
+      )
+      const cats: CategoryData[] = catSnap.docs.map((doc, i) => ({
+        id: doc.id,
+        name: doc.data().name,
+        color: doc.data().color || `hsl(${(i * 60) % 360}, 70%, 50%)`,
+      }))
+      setCategories(cats)
+
+      // 2. Fetch transactions (expenses/income)
+      const txSnap = await getDocs(
+        query(collection(db, "expenses"), where("userId", "==", user.uid))
+      )
+      const txs: TransactionData[] = txSnap.docs.map(doc => {
+        const data = doc.data()
+        let dateStr = ""
+        if (data.date instanceof Timestamp) {
+          dateStr = data.date.toDate().toISOString()
+        } else if (data.date) {
+          dateStr = new Date(data.date).toISOString()
+        }
+        return {
+          id: doc.id,
+          categoryId: data.categoryId,
+          amount: data.amount,
+          type: data.type,
+          date: dateStr,
+        }
+      })
+      setTransactions(txs)
+
+      setDataLoaded(true)
+    }
+
+    fetchData()
+  }, [user])
+
+  // ---------------- Chart Data ----------------
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
   const lineData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    labels: months,
     datasets: [
       {
         label: "Expenses",
-        data: [1200, 1900, 800, 1500, 2000, 1700],
+        data: months.map((_, i) =>
+          transactions
+            .filter(t => t.type === "expense" && new Date(t.date).getMonth() === i)
+            .reduce((sum, t) => sum + t.amount, 0)
+        ),
         borderColor: "hsl(var(--chart-1))",
         backgroundColor: "hsl(var(--chart-1) / 0.1)",
-        tension: 0.4,
       },
       {
         label: "Income",
-        data: [2000, 2500, 2200, 2800, 3000, 2600],
+        data: months.map((_, i) =>
+          transactions
+            .filter(t => t.type === "income" && new Date(t.date).getMonth() === i)
+            .reduce((sum, t) => sum + t.amount, 0)
+        ),
         borderColor: "hsl(var(--chart-2))",
         backgroundColor: "hsl(var(--chart-2) / 0.1)",
-        tension: 0.4,
       },
     ],
   }
 
   const doughnutData = {
-    labels: ["Food", "Transport", "Bills", "Entertainment", "Shopping"],
+    labels: categories.map(c => c.name),
     datasets: [
       {
-        data: [300, 150, 400, 200, 250],
-        backgroundColor: [
-          "hsl(var(--chart-1))",
-          "hsl(var(--chart-2))",
-          "hsl(var(--chart-3))",
-          "hsl(var(--chart-4))",
-          "hsl(var(--chart-5))",
-        ],
-        borderWidth: 0,
+        label: "Spending by Category",
+        data: categories.map(cat =>
+          transactions
+            .filter(t => t.categoryId === cat.id && t.type === "expense")
+            .reduce((sum, t) => sum + t.amount, 0)
+        ),
+        backgroundColor: categories.map(c => c.color),
+        hoverOffset: 10,
       },
     ],
   }
@@ -66,9 +130,12 @@ export function ExpenseChart({ type, title, description }: ExpenseChartProps) {
     datasets: [
       {
         label: "Weekly Expenses",
-        data: [400, 600, 350, 750],
+        data: [0, 1, 2, 3].map(i =>
+          transactions
+            .filter(t => t.type === "expense" && Math.ceil(new Date(t.date).getDate() / 7) === i + 1)
+            .reduce((sum, t) => sum + t.amount, 0)
+        ),
         backgroundColor: "hsl(var(--primary))",
-        borderRadius: 4,
       },
     ],
   }
@@ -76,31 +143,17 @@ export function ExpenseChart({ type, title, description }: ExpenseChartProps) {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top" as const,
-      },
-    },
-    scales:
-      type !== "doughnut"
-        ? {
-            y: {
-              beginAtZero: true,
-            },
-          }
-        : undefined,
+    plugins: { legend: { position: "top" as const } },
+    scales: type !== "doughnut" ? { y: { beginAtZero: true } } : undefined,
   }
 
   const renderChart = () => {
+    if (!dataLoaded) return <p className="text-center text-sm">Loading data...</p>
     switch (type) {
-      case "line":
-        return <Line data={lineData} options={options} />
-      case "doughnut":
-        return <Doughnut data={doughnutData} options={options} />
-      case "bar":
-        return <Bar data={barData} options={options} />
-      default:
-        return null
+      case "line": return <Line data={lineData} options={options} />
+      case "doughnut": return <Doughnut data={doughnutData} options={options} />
+      case "bar": return <Bar data={barData} options={options} />
+      default: return null
     }
   }
 
@@ -111,7 +164,7 @@ export function ExpenseChart({ type, title, description }: ExpenseChartProps) {
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">{renderChart()}</div>
+        <div className="h-[300px] mb-4">{renderChart()}</div>
       </CardContent>
     </Card>
   )
